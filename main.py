@@ -90,7 +90,7 @@ class Hamming:
         self.hl = None  # Horizontal line
         self.hl_short = None  # Short horizontal line
 
-        print(f"Using output format: {('hex', 'bin')[self.output_format]}")
+        #print(f"Using output format: {('hex', 'bin')[self.output_format]}")
 
     def insert_neuralhash(self, image, nhash):
         """Append neuralhash to self.hash_dict"""
@@ -761,46 +761,139 @@ class Hamming:
                     filewriter.writerow([img_file, self.hash_dict[img_file][1], data[GENDER], data[RACE]])
 
 
-if __name__ == "__main__":
+    def calculate_hamming_distance_between_images(self, hash1, hash2):
+   
+        # hamming_dist_hex = Levenshtein.hamming(hash1[0], hash2[0])
+        hamming_dist_bin = Levenshtein.hamming(hash1[1], hash2[1])
 
-    file_format = ".ppm"  # File format of images
-    split_char = '_'  # Delimiter for splitting image file names
+        # print(f"\n🔹 Hamming Distance (Hex): {hamming_dist_hex}")
+        print(f"\n🔹 Hamming Distance (Binary): {hamming_dist_bin}\n")
 
-    NHash = NeuralHash()
-    hamming = Hamming(split_char, output_format=0, load_dict=True)
+        return  hamming_dist_bin
+    
+# if __name__ == "__main__":
 
-    if not os.path.exists(f"{os.getcwd()}/images"):
-        os.mkdir(f"{os.getcwd()}/images")
+#     #file_format = ".ppm"  # File format of images
+#     file_format = (".ppm", ".jpg", ".png")  # Allow multiple formats
 
-    dir_images = f"{os.getcwd()}/images"
-    subject_dirs = [f"{dir_images}/{s}" for s in os.listdir(dir_images)]
-    image_paths = [f"{subject_dir}/{img}" for subject_dir in subject_dirs for img in os.listdir(subject_dir)]
+#     split_char = '_'  # Delimiter for splitting image file names
 
-    if hamming.load_dict_json:
-        try:
-            hamming.load_dict()
-        except FileNotFoundError as e:
-            print(f"{RED}Could not find json files containing hashes and hamming distances{END}")
-            sys.exit(1)
-    else:
-        for filepath in image_paths:
-            file = filepath.split('/')[-1]
-            if not file.endswith(file_format):
-                continue
+#     NHash = NeuralHash()
+#     # hamming = Hamming(split_char, output_format=0, load_dict=True)
+#     hamming = Hamming(split_char, output_format=0, save_dict=True, load_dict=False)
 
-            try:
-                img = Image.open(filepath)
-                hamming.insert_neuralhash(file, NHash.calculate_neuralhash(filepath))
-            except FileNotFoundError as e:
-                print(f"{RED}{e}{END}")
+    
 
-        hamming.calculate_hamming_distances()
+#     if not os.path.exists(f"{os.getcwd()}/images"):
+#         os.mkdir(f"{os.getcwd()}/images")
 
-    if hamming.save_dict_json:
-        hamming.save_dict()
+#     dir_images = f"{os.getcwd()}/images"
+    
+#     if os.path.isfile(sys.argv[1]):  # If input is a file, use it directly
+#         image_paths = [sys.argv[1]]
+#     elif os.path.isdir(sys.argv[1]):  # If input is a directory, process all images inside
+#         dir_images = sys.argv[1]
+#         image_paths = [os.path.join(dir_images, img) for img in os.listdir(dir_images)]
+#     else:
+#         print(f"Invalid input: {sys.argv[1]}")
+#         sys.exit(1)
 
-    hamming.set_printing_params()
 
-    # hamming.plot_hamming_distances()             # Experiment 1
-    # hamming.print_avg_hamming_distance_and_sd()  # Experiment 2
-    # hamming.plot_far_frr()                       # Experiment 3
+
+#     if hamming.load_dict_json:
+#         try:
+#             print("correct")
+#             hamming.load_dict()
+            
+            
+#         except FileNotFoundError as e:
+#             print(f"{RED}Could not find json files containing hashes and hamming distances{END}")
+#             sys.exit(1)
+#     else:
+#         for filepath in image_paths:
+#             file = filepath.split('/')[-1]
+#             print(f"Processing file: {file}")  # Debugging: Print each file name
+#             if not file.endswith(file_format):
+#                 print(f"Skipping file {file}, unsupported format.")  # Debugging: Unsupported format message
+#                 continue
+
+#     try:
+#         print(f"Calculating neural hash for {filepath}")  # Debugging: Before neural hash calculation
+#         img = Image.open(filepath)
+#         neural_hash = NHash.calculate_neuralhash(filepath)
+#         print(f"Neural Hash for {file}: {neural_hash}")  # Print the hash to terminal
+#         hamming.insert_neuralhash(file, neural_hash)
+#     except Exception as e:
+#         print(f"Error processing {filepath}: {e}")  # Debugging: Catch all errors
+#         hamming.calculate_hamming_distances()
+
+#     if hamming.save_dict_json:
+#         hamming.save_dict()
+
+#     hamming.set_printing_params()
+
+#     # hamming.plot_hamming_distances()             # Experiment 1
+#     # hamming.print_avg_hamming_distance_and_sd()  # Experiment 2
+#     # hamming.plot_far_frr()                       # Experiment 3
+
+# Allowed file formats
+# Allowed file formats
+file_format = (".ppm", ".jpg", ".png")
+
+split_char = '_'  # Delimiter for splitting image file names
+
+# Initialize NeuralHash and Hamming classes
+NHash = NeuralHash()
+hamming = Hamming(split_char, output_format=0, save_dict=False, load_dict=False)
+
+# Ensure correct usage
+if len(sys.argv) not in [2, 3]:
+    print("Usage:")
+    print("  python main.py <image1_path>         # Prints Neural Hash for one image")
+    print("  python main.py <image1_path> <image2_path>  # Prints Neural Hashes and Hamming Distance")
+    sys.exit(1)
+
+image1_path = sys.argv[1]
+
+# Verify that the provided file exists
+if not os.path.isfile(image1_path):
+    print(f"Error: File '{image1_path}' does not exist.")
+    sys.exit(1)
+
+# Process the first image and compute Neural Hash
+def process_image(image_path):
+    file_name = os.path.basename(image_path)
+    try:
+        print(f"\nProcessing file: {file_name}")
+        neural_hash = NHash.calculate_neuralhash(image_path)
+        print(f"🟢 Neural Hash for {file_name}: {neural_hash}")
+        return neural_hash
+    except Exception as e:
+        print(f"Error processing {file_name}: {e}")
+        sys.exit(1)
+
+# Compute and print Neural Hash for first image
+hash1 = process_image(image1_path)
+
+# If only one image is provided, exit after printing Neural Hash
+if len(sys.argv) == 2:
+    print("\n✅ Process completed.")
+    sys.exit(0)
+
+# If two images are provided, compute and compare Hamming Distance
+image2_path = sys.argv[2]
+
+# Verify that the second file exists
+if not os.path.isfile(image2_path):
+    print(f"Error: File '{image2_path}' does not exist.")
+    sys.exit(1)
+
+# Compute Neural Hash for second image
+hash2 = process_image(image2_path)
+
+# Compute and print Hamming Distance
+hamming_distance_bin = hamming.calculate_hamming_distance_between_images(hash1, hash2)
+print(f"🔹 Hamming Distance between {os.path.basename(image1_path)} and {os.path.basename(image2_path)}:")
+print(f"   - Binary Distance: {hamming_distance_bin}")
+
+print("\n✅ Process completed.")
