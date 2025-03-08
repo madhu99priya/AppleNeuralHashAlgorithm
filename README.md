@@ -1,2 +1,2 @@
 # AppleNeuralHash
-Implementation of the experiments for my master's thesis
+Customized Apple's Neural Hashing Algorithm
