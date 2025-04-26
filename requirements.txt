@@ -11,3 +11,7 @@ keras~=2.9.0
 ann-visualizer~=2.5
 mtcnn
 tensorflow
+onnx2torch
+opencv-python
+mediapipe
+
