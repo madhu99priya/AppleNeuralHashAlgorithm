@@ -878,62 +878,54 @@ class Hamming:
 
 # Allowed file formats
 # Allowed file formats
-file_format = (".ppm", ".jpg", ".png")
+def main():
+    file_format = (".ppm", ".jpg", ".png")
+    split_char = '_'  # Delimiter for splitting image file names
 
-split_char = '_'  # Delimiter for splitting image file names
+    # Initialize NeuralHash and Hamming classes
+    NHash = NeuralHash()
+    hamming = Hamming(split_char, output_format=0, save_dict=False, load_dict=False)
 
-# Initialize NeuralHash and Hamming classes
-NHash = NeuralHash()
-hamming = Hamming(split_char, output_format=0, save_dict=False, load_dict=False)
+    # Ensure correct usage
+    if len(sys.argv) not in [2, 3]:
+        print("Usage:")
+        print("  python main.py <image1_path>         # Prints Neural Hash for one image")
+        print("  python main.py <image1_path> <image2_path>  # Prints Neural Hashes and Hamming Distance")
+        return
 
-# Ensure correct usage
-if len(sys.argv) not in [2, 3]:
-    print("Usage:")
-    print("  python main.py <image1_path>         # Prints Neural Hash for one image")
-    print("  python main.py <image1_path> <image2_path>  # Prints Neural Hashes and Hamming Distance")
-    sys.exit(1)
+    image1_path = sys.argv[1]
+    if not os.path.isfile(image1_path):
+        print(f"Error: File '{image1_path}' does not exist.")
+        return
 
-image1_path = sys.argv[1]
+    def process_image(image_path):
+        file_name = os.path.basename(image_path)
+        try:
+            print(f"\nProcessing file: {file_name}")
+            neural_hash = NHash.calculate_neuralhash(image_path)
+            print(f"🟢 Neural Hash for {file_name}: {neural_hash}")
+            return neural_hash
+        except Exception as e:
+            print(f"Error processing {file_name}: {e}")
+            return None
 
-# Verify that the provided file exists
-if not os.path.isfile(image1_path):
-    print(f"Error: File '{image1_path}' does not exist.")
-    sys.exit(1)
+    hash1 = process_image(image1_path)
 
-# Process the first image and compute Neural Hash
-def process_image(image_path):
-    file_name = os.path.basename(image_path)
-    try:
-        print(f"\nProcessing file: {file_name}")
-        neural_hash = NHash.calculate_neuralhash(image_path)
-        print(f"🟢 Neural Hash for {file_name}: {neural_hash}")
-        return neural_hash
-    except Exception as e:
-        print(f"Error processing {file_name}: {e}")
-        sys.exit(1)
+    if len(sys.argv) == 2:
+        print("\n✅ Process completed.")
+        return
 
-# Compute and print Neural Hash for first image
-hash1 = process_image(image1_path)
+    image2_path = sys.argv[2]
+    if not os.path.isfile(image2_path):
+        print(f"Error: File '{image2_path}' does not exist.")
+        return
 
-# If only one image is provided, exit after printing Neural Hash
-if len(sys.argv) == 2:
+    hash2 = process_image(image2_path)
+    hamming_distance_bin = hamming.calculate_hamming_distance_between_images(hash1, hash2)
+    print(f"🔹 Hamming Distance between {os.path.basename(image1_path)} and {os.path.basename(image2_path)}:")
+    print(f"   - Binary Distance: {hamming_distance_bin}")
+
     print("\n✅ Process completed.")
-    sys.exit(0)
 
-# If two images are provided, compute and compare Hamming Distance
-image2_path = sys.argv[2]
-
-# Verify that the second file exists
-if not os.path.isfile(image2_path):
-    print(f"Error: File '{image2_path}' does not exist.")
-    sys.exit(1)
-
-# Compute Neural Hash for second image
-hash2 = process_image(image2_path)
-
-# Compute and print Hamming Distance
-hamming_distance_bin = hamming.calculate_hamming_distance_between_images(hash1, hash2)
-print(f"🔹 Hamming Distance between {os.path.basename(image1_path)} and {os.path.basename(image2_path)}:")
-print(f"   - Binary Distance: {hamming_distance_bin}")
-
-print("\n✅ Process completed.")
+if __name__ == "__main__":
+    main()
