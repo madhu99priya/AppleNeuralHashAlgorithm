@@ -1,5 +1,5 @@
 import os
-from collections import defaultdict
+import time
 from preprocessing_mediapipe import NeuralHash, Hamming 
 
 # -------- CONFIGURATION -------- #
@@ -8,6 +8,9 @@ file_formats = (".jpg", ".png")    # File formats allowed
 threshold = 15                   
 split_char = "_"  
 # -------------------------------- #
+
+
+start_time = time.time()
 
 # Get all image paths
 image_paths = [os.path.join(image_dir, f) for f in os.listdir(image_dir)
@@ -65,3 +68,10 @@ else:
         for img in group:
             print(f"  - {img}")
         print()
+
+
+end_time = time.time()
+
+total_time = end_time-start_time
+
+print(f"\n⏰ Total time taken: {total_time:.2f} seconds")
