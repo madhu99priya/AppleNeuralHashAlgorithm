@@ -1,12 +1,12 @@
 import os
 from collections import defaultdict
-from preprocessing_mediapipe import NeuralHash, Hamming # Ensure main.py is in the same folder or Python path
+from preprocessing_mediapipe import NeuralHash, Hamming 
 
 # -------- CONFIGURATION -------- #
-image_dir = "./images"  # 🔁 Change this to your image folder
+image_dir = "./images"  
 file_formats = (".jpg", ".png")    # File formats allowed
-threshold = 10                     # 🔧 Hamming distance threshold
-split_char = "_"                  # For subject name parsing (can be adjusted)
+threshold = 15                   
+split_char = "_"  
 # -------------------------------- #
 
 # Get all image paths

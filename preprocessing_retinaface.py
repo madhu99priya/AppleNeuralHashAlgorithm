@@ -12,8 +12,16 @@ from PIL import Image
 from onnxruntime import InferenceSession
 from xml.dom import minidom
 import matplotlib.pyplot as plt
-from retinaface import RetinaFace
+
+#My changes
+from insightface.app import FaceAnalysis
 import cv2
+ 
+#My changes
+face_detector = FaceAnalysis(name="buffalo_l")  # buffalo_l uses RetinaFace
+face_detector.prepare(ctx_id=0, det_size=(640, 640))  # ctx_id=0 means CPU; -1 for GPU
+ 
+
 
 # Enable colored output for Windows
 if sys.platform in ["cygwin", "win32"]:
@@ -65,56 +73,57 @@ class NeuralHash:
         hash_hex = '{:0{}x}'.format(int(hash_bits, 2), len(hash_bits) // 4)
 
         return hash_hex, hash_bits
+
+    # @staticmethod
+    # def im2array(image_path):
+    #     """Preprocess image"""
+
+    #     image = Image.open(image_path).convert('RGB')
+    #     image = image.resize([360, 360])
+    #     arr = np.array(image).astype(np.float32) / 255.0
+    #     arr = arr * 2.0 - 1.0
+
+    #     return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
+
     
+    #My Changes
+    def detect_faces(self, image_np):
+        """
+        Detect faces using RetinaFace.
+        Input: image_np (numpy array)
+        Output: list of (x, y, width, height)
+        """
+        faces = face_detector.get(image_np)
+        detections = []
+
+        for face in faces:
+            x1, y1, x2, y2 = face.bbox  # Get the bounding box
+            detections.append((int(x1), int(y1), int(x2 - x1), int(y2 - y1)))
+
+        return detections
 
 
-    ##  using retinaface for preprocessing
-
-    @staticmethod
-    def im2array(image_path):
-        """Preprocess only the detected face region using RetinaFace"""
-
+    #My Changes
+    def im2array(self, image_path):
+        """Preprocess image: detect face, crop, and prepare array"""
         image = Image.open(image_path).convert('RGB')
         img_np = np.array(image)
 
-        # Detect faces
-        faces = RetinaFace.detect_faces(img_np)
+        detections = self.detect_faces(img_np)
 
-        if len(faces) == 0:
-            print(f"No face detected in {image_path}. Proceeding with the whole image.")
-            face_crop = img_np
+        if detections:
+            x, y, width, height = detections[0]  # Take the first face
+            x, y = max(0, x), max(0, y)
+            face_image = img_np[y:y+height, x:x+width]
+            image = Image.fromarray(face_image)
         else:
-            # Pick the first detected face
-            first_face = list(faces.values())[0]
+            print(f"No face detected in {image_path}, using full image.")
 
-            x, y, w, h = (
-                int(first_face["facial_area"][0]),
-                int(first_face["facial_area"][1]),
-                int(first_face["facial_area"][2] - first_face["facial_area"][0]),
-                int(first_face["facial_area"][3] - first_face["facial_area"][1]),
-            )
-
-            # Expand the bounding box slightly
-            expansion = 0.2
-            x_exp = int(w * expansion / 2)
-            y_exp = int(h * expansion / 2)
-
-            x_new = max(0, x - x_exp)
-            y_new = max(0, y - y_exp)
-            w_new = min(img_np.shape[1] - x_new, w + 2 * x_exp)
-            h_new = min(img_np.shape[0] - y_new, h + 2 * y_exp)
-
-            face_crop = img_np[y_new:y_new+h_new, x_new:x_new+w_new]
-
-        # Resize to 360x360
-        face_crop = cv2.resize(face_crop, (360, 360))
-
-        # Normalize to [-1, 1]
-        arr = face_crop.astype(np.float32) / 255.0
+        image = image.resize([360, 360], Image.LANCZOS)
+        arr = np.array(image).astype(np.float32) / 255.0
         arr = arr * 2.0 - 1.0
 
         return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
-  
 
 class Hamming:
     def __init__(self, split_char, threshold=0, output_format=0, save_dict=False, load_dict=False):
