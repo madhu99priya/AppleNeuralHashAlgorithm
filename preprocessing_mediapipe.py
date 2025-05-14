@@ -108,6 +108,11 @@ class NeuralHash:
         # Resize cropped face to 360×360
         face_crop = cv2.resize(face_crop, (360, 360))
 
+        # Display the preprocessed image
+        cv2.imshow("Preprocessed Face", face_crop)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
         # Normalize to [-1, 1]
         arr = face_crop.astype(np.float32) / 255.0
         arr = arr * 2.0 - 1.0
