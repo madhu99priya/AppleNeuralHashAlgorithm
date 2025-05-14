@@ -1,7 +1,6 @@
 import os
-import time 
-#from collections import defaultdict
-from preprocessing_retinaface import NeuralHash, Hamming 
+import time
+from preprocessing_mediapipe import NeuralHash, Hamming 
 
 # -------- CONFIGURATION -------- #
 image_dir = "./images"  
@@ -10,7 +9,8 @@ threshold = 15
 split_char = "_"  
 # -------------------------------- #
 
-start_time = time.time()  # ⏰ START timer
+
+start_time = time.time()
 
 # Get all image paths
 image_paths = [os.path.join(image_dir, f) for f in os.listdir(image_dir)
@@ -69,7 +69,9 @@ else:
             print(f"  - {img}")
         print()
 
-end_time = time.time()  # ⏰ END timer
+end_time = time.time()
 
-total_time = end_time - start_time
-print(f"\n⏰ Total time taken: {total_time:.2f} seconds")
+total_time = end_time-start_time
+
+print(f"\n⏰ Total time taken: {total_time:.2f} seconds")
+
