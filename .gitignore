@@ -106,11 +106,13 @@ celerybeat.pid
 .venv
 env/
 venv/
+secondvenv/
 ENV/
 env.bak/
 venv.bak/
 retinaface/
 dataset/
+dataset1/
 
 # Spyder project settings
 .spyderproject
