@@ -41,7 +41,7 @@ FURTHEST = 1
 class NeuralHash:
     def __init__(self):
         # Load ONNX model
-        self.model_path = f"{os.getcwd()}/model/model.onnx"
+        self.model_path = f"{os.getcwd()}/model/your_model.onnx"
         self.session = InferenceSession(self.model_path)
 
         # Load output hash matrix
@@ -106,7 +106,7 @@ class NeuralHash:
                 face_crop = img_np[y_new:y_new+h_new, x_new:x_new+w_new]
 
         # Resize cropped face to 360×360
-        face_crop = cv2.resize(face_crop, (360, 360))
+        face_crop = cv2.resize(face_crop, (224, 224))
 
         # Display the preprocessed image
         cv2.imshow("Preprocessed Face", face_crop)
@@ -117,7 +117,7 @@ class NeuralHash:
         arr = face_crop.astype(np.float32) / 255.0
         arr = arr * 2.0 - 1.0
 
-        return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
+        return arr.transpose(2, 0, 1).reshape([1, 3, 224, 224])
 
 
 
