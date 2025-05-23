@@ -39,7 +39,7 @@ FURTHEST = 1
 class NeuralHash:
     def __init__(self):
         # Load ONNX model
-        self.model_path = f"{os.getcwd()}/model/model.onnx"
+        self.model_path = f"{os.getcwd()}/model/newModel.onnx"
         self.session = InferenceSession(self.model_path)
 
         # Load output hash matrix
@@ -64,17 +64,26 @@ class NeuralHash:
 
         return hash_hex, hash_bits
 
+    # @staticmethod
+    # def im2array(image_path):
+    #     """Preprocess image"""
+
+    #     image = Image.open(image_path).convert('RGB')
+    #     image = image.resize([360, 360])
+    #     arr = np.array(image).astype(np.float32) / 255.0
+    #     arr = arr * 2.0 - 1.0
+
+    #     return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
+
     @staticmethod
     def im2array(image_path):
-        """Preprocess image"""
-
+        """Preprocess image for ONNX model (channels-last)"""
         image = Image.open(image_path).convert('RGB')
-        image = image.resize([360, 360])
+        image = image.resize((224, 224))
         arr = np.array(image).astype(np.float32) / 255.0
-        arr = arr * 2.0 - 1.0
-
-        return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
-
+        arr = arr * 2.0 - 1.0  # normalize to [-1, 1]
+        arr = np.expand_dims(arr, axis=0)  # Shape: (1, 224, 224, 3)
+        return arr
 
 class Hamming:
     def __init__(self, split_char, threshold=0, output_format=0, save_dict=False, load_dict=False):

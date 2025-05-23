@@ -43,7 +43,7 @@ class NeuralHash:
     def __init__(self, model_path=None):
         # Load ONNX model
         if model_path is None:
-            self.model_path = f"{os.getcwd()}/retrain/newModel.onnx"
+            self.model_path = f"{os.getcwd()}/model/model.onnx"
         else:
             self.model_path = model_path
             
@@ -141,6 +141,11 @@ class NeuralHash:
 
             # Resize cropped face to expected dimensions
             face_crop = cv2.resize(face_crop, (self.expected_width, self.expected_height))
+
+            # 💡 Show the preprocessed image
+            cv2.imshow("Preprocessed Face", cv2.cvtColor(face_crop, cv2.COLOR_RGB2BGR))
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
             # Normalize to [-1, 1]
             arr = face_crop.astype(np.float32) / 255.0
@@ -243,7 +248,7 @@ def main():
     current_dir = os.getcwd()
     
     # Define possible model filenames
-    model_filenames = [ "newModel.onnx", "converted_neuralhash.onnx", "model.onnx"]
+    model_filenames = [ "model.onnx", "newModel.onnx", "converted_neuralhash.onnx"]
     
     # Check in current directory and its model subfolder
     for filename in model_filenames:
