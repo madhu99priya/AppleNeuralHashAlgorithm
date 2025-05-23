@@ -54,6 +54,7 @@ class NeuralHash:
         """Calculate neuralhash of the image at image_path"""
 
         arr = self.im2array(image_path)
+        arr = np.transpose(arr, (0, 2, 3, 1))
 
         # Run model
         inputs = {self.session.get_inputs()[0].name: arr}
@@ -926,6 +927,11 @@ def main():
         return
 
     hash2 = process_image(image2_path)
+
+    if hash1 is None or hash2 is None:
+        print("❌ One or both hashes could not be computed. Skipping Hamming distance calculation.")
+        return
+
     hamming_distance_bin = hamming.calculate_hamming_distance_between_images(hash1, hash2)
     print(f"🔹 Hamming Distance between {os.path.basename(image1_path)} and {os.path.basename(image2_path)}:")
     print(f"   - Binary Distance: {hamming_distance_bin}")
