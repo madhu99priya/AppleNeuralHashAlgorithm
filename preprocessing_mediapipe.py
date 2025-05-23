@@ -43,7 +43,7 @@ class NeuralHash:
     def __init__(self, model_path=None):
         # Load ONNX model
         if model_path is None:
-            self.model_path = f"{os.getcwd()}/converted_neuralhash.onnx"
+            self.model_path = f"{os.getcwd()}/retrain/newModel.onnx"
         else:
             self.model_path = model_path
             
@@ -243,7 +243,7 @@ def main():
     current_dir = os.getcwd()
     
     # Define possible model filenames
-    model_filenames = ["model.onnx", "converted_neuralhash.onnx"]
+    model_filenames = [ "newModel.onnx", "converted_neuralhash.onnx", "model.onnx"]
     
     # Check in current directory and its model subfolder
     for filename in model_filenames:
