@@ -248,7 +248,7 @@ def main():
     current_dir = os.getcwd()
     
     # Define possible model filenames
-    model_filenames = [ "model.onnx", "newModel.onnx", "converted_neuralhash.onnx"]
+    model_filenames = [ "newModel.onnx",  "model.onnx", "converted_neuralhash.onnx"]
     
     # Check in current directory and its model subfolder
     for filename in model_filenames:
