@@ -41,7 +41,7 @@ FURTHEST = 1
 class NeuralHash:
     def __init__(self):
         # Load ONNX model
-        self.model_path = f"{os.getcwd()}/model/your_model.onnx"
+        self.model_path = f"{os.getcwd()}/model/face_embedding_model_128d.onnx"
         self.session = InferenceSession(self.model_path)
 
         # Load output hash matrix
