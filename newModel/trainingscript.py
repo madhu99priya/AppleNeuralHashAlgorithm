@@ -1,4 +1,5 @@
 import os
+import time 
 import random
 from PIL import Image
 import torch
@@ -8,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 
 # === Configuration ===
 DATA_DIR = "./dataset/cropped"
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 EPOCHS = 10
 LEARNING_RATE = 1e-4
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,12 +67,17 @@ class NeuralHashNet(nn.Module):
     def __init__(self):
         super(NeuralHashNet, self).__init__()
         base = models.mobilenet_v3_large(pretrained=True)
+
+        # Freeze backbone layers
+        for param in base.features.parameters():
+            param.requires_grad = False
+
         self.features = base.features
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.hash_head = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(960, 128),  # You can change hash size here
-            nn.Tanh()  # Output in [-1, 1]
+            nn.Linear(960, 128),
+            nn.Tanh()
         )
 
     def forward(self, x):
@@ -79,6 +85,7 @@ class NeuralHashNet(nn.Module):
         x = self.pool(x)
         x = self.hash_head(x)
         return x
+
 
 # === Contrastive Loss ===
 class ContrastiveLoss(nn.Module):
@@ -108,6 +115,9 @@ criterion = ContrastiveLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 # === Training Loop ===
+
+start_time = time.time()
+
 for epoch in range(EPOCHS):
     model.train()
     running_loss = 0.0
@@ -124,6 +134,11 @@ for epoch in range(EPOCHS):
         running_loss += loss.item()
 
     print(f"Epoch {epoch+1}/{EPOCHS}, Loss: {running_loss/len(loader):.4f}")
+
+end_time = time.time()
+total_time = end_time - start_time
+print(f"\n⏱️ Total training time: {total_time:.2f} seconds")
+
 
 # === Save Model ===
 torch.save(model.state_dict(), "mobilenetv3_neuralhash.pth")
