@@ -12,6 +12,7 @@ from PIL import Image
 from onnxruntime import InferenceSession
 from xml.dom import minidom
 import matplotlib.pyplot as plt
+import cv2
 
 from mtcnn import MTCNN #My changes
 
@@ -106,6 +107,11 @@ class NeuralHash:
         image = image.resize([360, 360])
         arr = np.array(image).astype(np.float32) / 255.0
         arr = arr * 2.0 - 1.0
+
+        # 💡 Show the preprocessed image
+        cv2.imshow("Preprocessed Face", cv2.cvtColor(face_image, cv2.COLOR_RGB2BGR))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
         return arr.transpose(2, 0, 1).reshape([1, 3, 360, 360])
 
