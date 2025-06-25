@@ -1,6 +1,6 @@
 import numpy as np
 
-def analyze_neuralhash_hyperplanes(file_path: str):
+def analyze_neuralhash_hyperplane(file_path: str):
     """Reads and prints all 96 hyperplanes from NeuralHash .dat file (each of 128 dimensions)."""
     
     # Load binary float32 data
@@ -27,4 +27,4 @@ def analyze_neuralhash_hyperplanes(file_path: str):
 
 # Run when executed directly
 if __name__ == "__main__":
-    analyze_neuralhash_hyperplanes("model/neuralhash_128x96_seed1.dat")
+    analyze_neuralhash_hyperplane("model/neuralhash_128x96_seed1.dat")
