@@ -1,23 +1,30 @@
 import numpy as np
 
-def analyze_neuralhash_dat(file_path: str):
-    """Analyzes NeuralHash .dat file for research purposes"""
-    # Read binary data
-    data = np.fromfile('model\neuralhash_128x96_seed1.dat', dtype=np.float32)
+def analyze_neuralhash_hyperplanes(file_path: str):
+    """Reads and prints all 96 hyperplanes from NeuralHash .dat file (each of 128 dimensions)."""
     
-    # Reshape to 128x96 matrix
-    M = data.reshape(128, 96)
-    
-    # Compute statistics
-    stats = {
-        "shape": M.shape,
-        "mean": np.mean(M),
-        "std": np.std(M),
-        "min": np.min(M),
-        "max": np.max(M),
-        "sample_values": M[:5, :5].tolist()  # Top-left 5x5 submatrix
-    }
-    return stats
+    # Load binary float32 data
+    data = np.fromfile(file_path, dtype=np.float32)
+    expected_size = 128 * 96
 
-# Usage (replace with actual file path)
-# stats = analyze_neuralhash_dat("neuralhash_128x96_seed1.dat")
+    # Check if the data is the correct length
+    if len(data) < expected_size:
+        raise ValueError(f"Data too short. Expected {expected_size}, but got {len(data)}")
+    elif len(data) > expected_size:
+        print(f"Warning: Extra data detected ({len(data)} values). Trimming to {expected_size}.")
+        data = data[:expected_size]
+
+    # Reshape into 128x96 matrix (columns are hyperplanes)
+    M = data.reshape(128, 96)
+
+    print(f"Loaded {M.shape[1]} hyperplanes of dimension {M.shape[0]}.\n")
+
+    for i in range(96):
+        hyperplane = M[:, i]
+        print(f"Hyperplane {i+1} (128D):\n{hyperplane}\n")
+
+    return M
+
+# Run when executed directly
+if __name__ == "__main__":
+    analyze_neuralhash_hyperplanes("model/neuralhash_128x96_seed1.dat")
