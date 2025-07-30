@@ -6,10 +6,7 @@ import face_recognition
 from pathlib import Path
 
 def detect_and_crop_face(image_path, output_path=None, save=True):
-    """
-    Detects face in the image, crops it, and optionally saves it.
-    Returns the cropped face as a numpy array (RGB).
-    """
+    
     image = face_recognition.load_image_file(image_path)
     face_locations = face_recognition.face_locations(image)
 

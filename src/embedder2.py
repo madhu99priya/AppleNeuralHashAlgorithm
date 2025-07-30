@@ -29,7 +29,7 @@ def build_embedding_db(cropped_root, output_path):
     cropped_root = Path(cropped_root)
     embedding_db = []
 
-    for person_dir in tqdm(list(cropped_root.iterdir()), desc="Generating embeddings"):
+    for person_dir in tqdm(list(cropped_root.iterdir()), desc="Generating averaged embeddings"):
         if not person_dir.is_dir():
             continue
 
@@ -39,20 +39,22 @@ def build_embedding_db(cropped_root, output_path):
         for img_file in person_dir.glob("*.jpg"):
             try:
                 emb = get_embedding(img_file)
-                person_embeddings.append(emb.tolist())
+                person_embeddings.append(emb)
             except Exception as e:
                 print(f"Error on {img_file}: {e}")
 
         if person_embeddings:
+            person_embeddings = np.stack(person_embeddings)
+            mean_embedding = np.mean(person_embeddings, axis=0)
             embedding_db.append({
                 "person_id": person_id,
-                "embeddings": person_embeddings
+                "embedding": mean_embedding.tolist()  # Only one per person
             })
 
     with open(output_path, "w") as f:
         json.dump(embedding_db, f)
 
-    print(f"\n✅ Embedding DB saved to {output_path}")
+    print(f"\n✅ Averaged embedding DB saved to {output_path}")
 
 if __name__ == "__main__":
-    build_embedding_db("images/cropped_criminalss", "embeddings/crims.json")
+    build_embedding_db("images/cropped_criminals", "embeddings/criminals.json")
